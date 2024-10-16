@@ -9,35 +9,35 @@ body {
 }
 
 .light-theme {
-  background-color: #FFFBF5 !important;
+  background-color: #FFFBF5;
 }
 
 .dark-theme {
-  background-color: #332829 !important;
+  background-color: #332829;
 }
 
 input {
-  background-color: white !important;
-  border: none !important;
+  background-color: var(--selected-bg-color);
+  border: none;
   border-radius: 5px;
   padding: 12px 15px;
   margin: 8px 0;
   width: 100%;
   box-sizing: border-box;
   font-size: 16px;
-  color: #333 !important;
+  color: #333;
   outline: none;
   transition: border 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 }
 
 input:focus {
-  border: 2px solid #ff4b2b;
-  box-shadow: 0 0 8px rgba(255, 75, 43, 0.5);
+  border: 2px solid #aef3c2;
+  box-shadow: 0 0 8px #aef3c2;
   background-color: #fff;
 }
 
 input::placeholder {
-  color: #999 !important;
+  color: #999;
   font-style: italic;
 }
 
@@ -55,7 +55,7 @@ button:hover {
 }
 
 .line2 {
-  margin-top: -120px !important;
+  margin-top: -120px;
 }
 
 .button-click {
@@ -64,5 +64,5 @@ button:hover {
 
 .para {
   color: white;
-  padding-left: 0 !important;
+  padding-left: 0;
 }

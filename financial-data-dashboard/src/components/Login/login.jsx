@@ -70,7 +70,7 @@ const SignInContainer = styled.div`
 `;
 
 const Form = styled.form`
-  background: rgba(90, 154, 97, 0.8);
+  background: #1e1e1e;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -84,7 +84,7 @@ const Form = styled.form`
 const Title = styled.h1`
   font-weight: bold;
   font-size: 1.7rem;
-  color: #333333;
+  color: white;
   margin: 0;
   margin-bottom: 20px;
 `;
