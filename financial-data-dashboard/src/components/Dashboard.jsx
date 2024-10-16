@@ -3,9 +3,10 @@ import {
   fetchStockSymbols,
   fetchHistoricalPrices,
   fetchFinancialRatios,
+  fetchKPIData,
 } from "../services/APIService";
 import { Chart, registerables } from "chart.js/auto";
-import 'chartjs-adapter-date-fns';
+import "chartjs-adapter-date-fns";
 import {
   MenuItem,
   Select,
@@ -17,10 +18,15 @@ import {
   Grid,
   CircularProgress,
   TextField,
-  Button,
   Snackbar,
   Alert as MuiAlert,
+  IconButton,
+  AppBar,
+  Toolbar,
+  Button,
 } from "@mui/material";
+import "./styles.css";
+import MenuIcon from "../assets/menu.png";
 
 Chart.register(...registerables);
 
@@ -28,115 +34,114 @@ const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
+const toTitleCaseWithSpaces = (str) => {
+  return str
+    .replace(/([A-Z])/g, " $1")
+    .trim()
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+};
+
+
+
 const Dashboard = () => {
   const [stockSymbols, setStockSymbols] = useState([]);
   const [filteredStockSymbols, setFilteredStockSymbols] = useState([]);
   const [selectedSymbol, setSelectedSymbol] = useState("");
   const [historicalPrices, setHistoricalPrices] = useState([]);
-  const [financialRatios, setFinancialRatios] = useState([]);
-  const [yearRange, setYearRange] = useState([2013, 2023]);
-  const [loading, setLoading] = useState(false);
+  const [FRs, setFRData] = useState([]);
+  const [loadingSymbols, setLoadingSymbols] = useState(false);
+  const [loadingData, setLoadingData] = useState(false);
   const [error, setError] = useState("");
   const chartRef = useRef(null);
   const chartInstanceRef = useRef(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [favorites, setFavorites] = useState([]);
   const [chartType, setChartType] = useState("line");
   const [searchTerm, setSearchTerm] = useState("");
-  const [data, setData] = useState([]);
+  const [kpis, setKpis] = useState({});
+  const [selectedDetail, setSelectedDetail] = useState("kpi");
+  const [timeframe, setTimeframe] = useState("1mo");
+  const [searchTimeout, setSearchTimeout] = useState(null);
 
   useEffect(() => {
     const loadStockSymbols = async () => {
       try {
-        setLoading(true);
+        setLoadingSymbols(true);
         const symbols = await fetchStockSymbols();
         setStockSymbols(Array.isArray(symbols) ? symbols : []);
         setFilteredStockSymbols(Array.isArray(symbols) ? symbols : []);
       } catch (err) {
         setError("Failed to fetch stock symbols.");
       } finally {
-        setLoading(false);
+        setLoadingSymbols(false);
       }
     };
-
 
     loadStockSymbols();
   }, []);
 
   useEffect(() => {
-    if (stockSymbols) {
-      const filtered = stockSymbols.filter((symbol) =>
-        symbol.symbol.toLowerCase().includes(searchTerm.toLowerCase())
+    if (searchTerm) {
+      if (searchTimeout) clearTimeout(searchTimeout);
+
+      setSearchTimeout(
+        setTimeout(() => {
+          const filtered = stockSymbols.filter((symbol) =>
+            symbol.symbol.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+          setFilteredStockSymbols(filtered);
+        }, 300)
       );
-      setFilteredStockSymbols(filtered);
+    } else {
+      setFilteredStockSymbols(stockSymbols);
     }
+
+    return () => {
+      if (searchTimeout) clearTimeout(searchTimeout);
+    };
   }, [searchTerm, stockSymbols]);
 
   useEffect(() => {
-    const loadData = async () => {
+    const getFRData = async () => {
       if (selectedSymbol) {
-        setLoading(true);
-        setError("");
         try {
-          const [prices, ratios] = await Promise.all([
-            fetchHistoricalPrices(selectedSymbol),
-            fetchFinancialRatios(selectedSymbol),
-          ]);
-          setHistoricalPrices(prices);
-          setFinancialRatios(ratios);
-        } catch (err) {
-          setError("Failed to fetch data for the selected symbol.");
-        } finally {
-          setLoading(false);
+          const FRData = await fetchFinancialRatios(selectedSymbol);
+          setFRData(FRData);
+        } catch (error) {
+          setError("Error fetching KPI data. Please try again.");
+          setFRData({});
         }
       }
     };
 
-    loadData();
+    getFRData();
   }, [selectedSymbol]);
 
   useEffect(() => {
-    if (historicalPrices && historicalPrices.length > 0) {
-      const filtered = historicalPrices.filter((item) => {
-        const year = new Date(item.date).getFullYear();
-        return year >= yearRange[0] && year <= yearRange[1];
-      });
-      plotChart(filtered);
-    }
-  }, [historicalPrices, yearRange]);
-
-  const handleToggleFavorite = (symbol) => {
-    setFavorites((prev) => {
-      if (prev.includes(symbol)) {
-        return prev.filter((fav) => fav !== symbol);
+    const getKPIData = async () => {
+      if (selectedSymbol) {
+        try {
+          const kpiData = await fetchKPIData(selectedSymbol);
+          setKpis(kpiData);
+        } catch (error) {
+          setError("Error fetching KPI data. Please try again.");
+          setKpis({});
+        }
       }
-      return [...prev, symbol];
-    });
-    setOpenSnackbar(true);
-  };
+    };
 
-  const handleSymbolChange = (event) => {
-    setSelectedSymbol(event.target.value);
-  };
-
-  const handleRangeChange = (event) => {
-    const range = event.target.value.split("-");
-    setYearRange([parseInt(range[0]), parseInt(range[1])]);
-  };
-
-  const exportData = () => {
-    const dataStr = JSON.stringify(historicalPrices, null, 2);
-    const blob = new Blob([dataStr], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${selectedSymbol}_data.json`;
-    a.click();
-  };
+    getKPIData();
+  }, [selectedSymbol]);
 
   const plotChart = (data) => {
-
-    if (!data || data.length === 0) return;
+    if (!data || data.length === 0) {
+      if (chartInstanceRef.current) {
+        chartInstanceRef.current.destroy();
+        chartInstanceRef.current = null;
+      }
+      return;
+    }
 
     if (chartInstanceRef.current) {
       chartInstanceRef.current.destroy();
@@ -150,15 +155,23 @@ const Dashboard = () => {
         labels: data.map((d) => d.date),
         datasets: [
           {
-            label: `${selectedSymbol} Closing Price`,
-            data: data.map((d) => d.close),
+            label: `${selectedSymbol} Opening Price`,
+            data: data.map((d) => d.open),
             borderColor: "rgba(75, 192, 192, 1)",
-            backgroundColor:
-              chartType === "bar"
-                ? "rgba(75, 192, 192, 0.2)"
-                : "rgba(75, 192, 192, 0.2)",
+            backgroundColor: "rgba(75, 192, 192, 0.2)",
             pointBorderColor: "rgba(75, 192, 192, 1)",
             pointBackgroundColor: "rgba(75, 192, 192, 1)",
+            pointRadius: 3,
+            fill: false,
+            tension: 0.3,
+          },
+          {
+            label: `${selectedSymbol} Closing Price`,
+            data: data.map((d) => d.close),
+            borderColor: "rgba(255, 99, 132, 1)",
+            backgroundColor: "rgba(255, 99, 132, 0.2)",
+            pointBorderColor: "rgba(255, 99, 132, 1)",
+            pointBackgroundColor: "rgba(255, 99, 132, 1)",
             pointRadius: 3,
             fill: false,
             tension: 0.3,
@@ -183,11 +196,11 @@ const Dashboard = () => {
             title: { display: true, text: "Date" },
             type: "time",
             time: {
-              unit: "year",
+              unit: "day",
             },
           },
           y: {
-            title: { display: true, text: "Closing Price (USD)" },
+            title: { display: true, text: "Price (USD)" },
             beginAtZero: false,
           },
         },
@@ -195,127 +208,245 @@ const Dashboard = () => {
     });
   };
 
-  const handleSymbolSelect = (event) => {
-    const symbol = event.target.value;
-    setSelectedSymbol(symbol);
-  };
-
   useEffect(() => {
-    if (selectedSymbol) {
-      const fetchData = async () => {
-        try {
-          const response = await fetch(`api/endpoint/${selectedSymbol}`);
-          const result = await response.json();
-          setData(result.data || []);
-        } catch (error) {
-          console.error("Error fetching data:", error);
-        }
-      };
-
-      fetchData();
+    if (historicalPrices.length) {
+      plotChart(historicalPrices);
+    } else if (chartInstanceRef.current) {
+      chartInstanceRef.current.destroy();
     }
-  }, [selectedSymbol]);
+  }, [historicalPrices]);
 
   return (
-    <Container maxWidth="lg">
-      <Box py={4}>
-        <Typography
-          variant="h3"
-          align="center"
-          gutterBottom
-          style={{ fontWeight: "700", color: "blue" }}
-        >
-          Financial Data Dashboard
-        </Typography>
-
-        {loading && <CircularProgress />}
-        {error && <Alert severity="error">{error}</Alert>}
-
-        <Snackbar
-          open={openSnackbar}
-          autoHideDuration={6000}
-          onClose={() => setOpenSnackbar(false)}
-        >
-          <Alert onClose={() => setOpenSnackbar(false)} severity="success">
-            Added to favorites!
-          </Alert>
-        </Snackbar>
-
-        <Grid container spacing={3} alignItems="center">
-          <Grid item xs={12} sm={6} md={4}>
-            <TextField
-              fullWidth
-              variant="outlined"
-              label="Search Stock Symbol"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+    <Container
+      sx={{ padding: 0, height: "100vh", width: "100vw"}}
+    >
+      {/* Header */}
+      <AppBar position="static" sx={{ mb: 2 }}>
+        <Toolbar sx={{ justifyContent: "space-between" }}>
+          <IconButton edge="start" color="inherit" aria-label="menu">
+            <img
+              src={MenuIcon}
+              alt="menu icon"
+              style={{ width: 24, height: 24 }}
             />
-          </Grid>
+          </IconButton>
+          <Typography variant="h6">Stock Dashboard</Typography>
+          <Button color="inherit">Login</Button>
+        </Toolbar>
+      </AppBar>
 
-          <Grid item xs={12} sm={6} md={4}>
-            <FormControl fullWidth variant="outlined">
-              <InputLabel id="symbol-label" shrink={Boolean(selectedSymbol)}>
-                Select Stock Symbol
-              </InputLabel>
-              <Select
-                labelId="symbol-label"
-                value={selectedSymbol}
-                onChange={handleSymbolChange}
-                displayEmpty
-              >
-                <MenuItem value="">
-                  <em>Select a stock symbol</em>
+      {/* Main Layout */}
+      <Box sx={{ display: "flex", height: "100%" }}>
+        {/* Sidebar */}
+        <Box sx={{ flex: 1, padding: "20px", borderRight: "1px solid #ccc" }}>
+          <TextField
+            label="Search Symbol"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            variant="outlined"
+            fullWidth
+            margin="normal"
+          />
+
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Select Stock Symbol</InputLabel>
+            <Select
+              value={selectedSymbol}
+              onChange={(e) => {
+                setSelectedSymbol(e.target.value);
+                setSelectedDetail("kpi");
+              }}
+            >
+              {filteredStockSymbols.map((symbol) => (
+                <MenuItem key={symbol.symbol} value={symbol.symbol}>
+                  {symbol.symbol}
                 </MenuItem>
-                {filteredStockSymbols.map((symbol) => (
-                  <MenuItem key={symbol.symbol} value={symbol.symbol}>
-                    {symbol.symbol} - {symbol.name}
-                    <Button onClick={() => handleToggleFavorite(symbol.symbol)}>
-                      {favorites.includes(symbol.symbol)
-                        ? "Unfavorite"
-                        : "Favorite"}
-                    </Button>
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
+              ))}
+            </Select>
+          </FormControl>
 
-          <Grid item xs={12} sm={6} md={4}>
-            <FormControl fullWidth variant="outlined">
-              <InputLabel
-                id="year-range-label"
-                style={{ fontSize: "20px" }}
-                shrink={Boolean(yearRange[0])}
-              >
-                Select Year Range
-              </InputLabel>
-              <Select
-                labelId="year-range-label"
-                value={`${yearRange[0]}-${yearRange[1]}`}
-                onChange={handleRangeChange}
-              >
-                <MenuItem value="2013-2023">2013-2023</MenuItem>
-                <MenuItem value="2018-2023">2018-2023</MenuItem>
-                <MenuItem value="2020-2023">2020-2023</MenuItem>
-                <MenuItem value="2021-2023">2021-2023</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-        </Grid>
+          {loadingSymbols && <CircularProgress />}
+          {loadingData && <CircularProgress />}
 
-        <Box my={4}>
-          <canvas id="myChart" width="400" height="200"></canvas>
+          {error && (
+            <Typography color="error" variant="h6">
+              {error}
+            </Typography>
+          )}
+
+          <Box mt={2}>
+            <Typography variant="h6">Choose</Typography>
+            <Box
+              sx={{
+                backgroundColor: "#f0f0f0",
+                padding: "10px",
+                borderRadius: "4px",
+                marginTop: "10px",
+              }}
+            >
+              {/* Clickable Sections */}
+              <Box>
+                <Box
+                  sx={{
+                    cursor: "pointer",
+                    padding: "50px",
+                    border: "1px solid #ccc",
+                    borderRadius: "4px",
+                    marginBottom: "10px",
+                    backgroundColor:
+                      selectedDetail === "kpi" ? "#e0f7fa" : "#fff",
+                    "&:hover": { backgroundColor: "#b2ebf2" },
+                  }}
+                  onClick={() => setSelectedDetail("kpi")}
+                >
+                  KPI Data
+                </Box>
+                <Box
+                  sx={{
+                    cursor: "pointer",
+                    padding: "50px",
+                    border: "1px solid #ccc",
+                    borderRadius: "4px",
+                    marginBottom: "10px",
+                    backgroundColor:
+                      selectedDetail === "ratios" ? "#e0f7fa" : "#fff",
+                    "&:hover": { backgroundColor: "#b2ebf2" },
+                  }}
+                  onClick={() => setSelectedDetail("ratios")}
+                >
+                  Financial Ratios
+                </Box>
+                <Box
+                  sx={{
+                    cursor: "pointer",
+                    padding: "50px",
+                    border: "1px solid #ccc",
+                    borderRadius: "4px",
+                    marginBottom: "10px",
+                    backgroundColor:
+                      selectedDetail === "graph" ? "#e0f7fa" : "#fff",
+                    "&:hover": { backgroundColor: "#b2ebf2" },
+                  }}
+                  onClick={() => setSelectedDetail("graph")}
+                >
+                  Graphical analysis
+                </Box>
+              </Box>
+
+              {/* Content Rendering Based on Section */}
+              {selectedDetail === "kpi" && (
+                <Box
+                  mt={2}
+                  sx={{
+                    border: "1px solid #ddd",
+                    boxShadow: "0 4px 15px rgba(0, 0, 0, 0.2)",
+                    padding: "15px",
+                  }}
+                >
+                  {Object.keys(kpis).length > 0 ? (
+                    Object.entries(kpis).map(([key, value]) => (
+                      <Box
+                        key={key}
+                        sx={{
+                          border: "1px solid #ccc",
+                          borderRadius: "10px",
+                          padding: "5px",
+                          marginBottom: "10px",
+                          backgroundColor: "#f9f9f9",
+                          boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <Typography>
+                          {toTitleCaseWithSpaces(key)}: {value}
+                        </Typography>
+                      </Box>
+                    ))
+                  ) : (
+                    <Typography>No KPI data available.</Typography>
+                  )}
+                </Box>
+              )}
+
+              {selectedDetail === "ratios" && (
+                <Box
+                  mt={2}
+                  sx={{
+                    border: "1px solid #ddd",
+                    boxShadow: "0 4px 15px rgba(0, 0, 0, 0.2)",
+                    padding: "15px",
+                  }}
+                >
+                  {Object.keys(FRs).length > 0 ? (
+                    Object.entries(FRs).map(([key, value]) => (
+                      <Box
+                        key={key}
+                        sx={{
+                          border: "1px solid #ccc",
+                          borderRadius: "10px",
+                          padding: "5px",
+                          marginBottom: "10px",
+                          backgroundColor: "#f9f9f9",
+                          boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <Typography>
+                          {toTitleCaseWithSpaces(key)}: {value}
+                        </Typography>
+                      </Box>
+                    ))
+                  ) : (
+                    <Typography>No Financial Ratios data available.</Typography>
+                  )}
+                </Box>
+              )}
+
+              {selectedDetail === "graph" && (
+                <Box mt={2}>
+                  <Typography>Graph Section (Placeholder for Graph)</Typography>
+                  <canvas
+                    id="myChart"
+                    style={{ margin: "0 auto", width: "100%" }}
+                  />
+                </Box>
+              )}
+            </Box>
+          </Box>
         </Box>
 
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={exportData}
-          disabled={!selectedSymbol}
-        >
-          Export Data
-        </Button>
+        {/* Chart Area */}
+        <Box sx={{ flex: 2, padding: "20px", position: "relative" }}>
+          <Typography variant="h5">Historical Prices</Typography>
+          <FormControl
+            variant="outlined"
+            size="small"
+            sx={{ position: "absolute", top: 20, right: 20 }}
+          >
+            <InputLabel>Timeframe</InputLabel>
+            <Select
+              value={timeframe}
+              onChange={(e) => setTimeframe(e.target.value)}
+              label="Timeframe"
+            >
+              <MenuItem value="1mo">Last Month</MenuItem>
+              <MenuItem value="6mo">Last 6 Months</MenuItem>
+              <MenuItem value="1y">Last Year</MenuItem>
+              <MenuItem value="max">Since Start</MenuItem>
+            </Select>
+          </FormControl>
+          <canvas id="myChart" style={{ margin: "0 auto", width: "100%" }} />
+        </Box>
       </Box>
+
+      {/* Snackbar for Updates */}
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setOpenSnackbar(false)}
+      >
+        <Alert onClose={() => setOpenSnackbar(false)} severity="success">
+          Stock data updated successfully!
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };
