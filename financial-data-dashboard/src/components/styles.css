@@ -185,3 +185,29 @@ body.dark-mode {
   background-color: #fff;
   color: #000;
 }
+
+.MuiButton-root {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.MuiButton-root:hover {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.hover-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.MuiSelect-root {
+  transition: border-color 0.3s ease;
+}
+
+.MuiSelect-root:focus {
+  border-color: #007bff;
+}

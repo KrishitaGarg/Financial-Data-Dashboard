@@ -228,7 +228,7 @@ const Dashboard = ({ onLogout }) => {
               pointRadius: 3,
               fill: false,
               tension: 0.3,
-              color: isDarkMode ? "#f5f5f5" : "#000",
+              color: isDarkMode ? "#fff" : "#000",
             },
             {
               label: `${selectedSymbol} Closing Price`,
@@ -242,7 +242,7 @@ const Dashboard = ({ onLogout }) => {
               pointRadius: 3,
               fill: false,
               tension: 0.3,
-              color: isDarkMode ? "#f5f5f5" : "#000",
+              color: isDarkMode ? "#fff" : "#000",
             },
           ],
         },
@@ -257,28 +257,45 @@ const Dashboard = ({ onLogout }) => {
                   }: $${tooltipItem.raw.toFixed(2)} (${tooltipItem.label})`;
                 },
               },
+              titleColor: isDarkMode ? "#fff" : "#000",
+              bodyColor: isDarkMode ? "#fff" : "#000",
+              footerColor: isDarkMode ? "#fff" : "#000",
+              backgroundColor: isDarkMode
+                ? "rgba(0, 0, 0, 0.8)"
+                : "rgba(255, 255, 255, 0.9)",
             },
           },
           scales: {
             x: {
-              title: { display: true, text: "Date" },
+              title: {
+                display: true,
+                text: "Date",
+                color: isDarkMode ? "#fff" : "#000",
+              },
               type: "time",
               time: {
                 unit: "day",
                 tooltipFormat: "MMM dd, yyyy",
+                displayFormats: {
+                  day: "MMM dd, yyyy",
+                },
               },
               ticks: {
-                color: isDarkMode ? "#f5f5f5" : "#000",
+                color: isDarkMode ? "#fff" : "#000",
               },
               grid: {
                 color: isDarkMode ? "#757575" : "#ddd",
               },
             },
             y: {
-              title: { display: true, text: "Price (USD)" },
+              title: {
+                display: true,
+                text: "Price (USD)",
+                color: isDarkMode ? "#fff" : "#000",
+              },
               beginAtZero: false,
               ticks: {
-                color: isDarkMode ? "#f5f5f5" : "#000",
+                color: isDarkMode ? "#fff" : "#000",
               },
               grid: {
                 color: isDarkMode ? "#757575" : "#ddd",
@@ -288,8 +305,9 @@ const Dashboard = ({ onLogout }) => {
         },
       });
     },
-    [selectedSymbol, chartType]
+    [selectedSymbol, chartType, isDarkMode]
   );
+
 
   useEffect(() => {
     if (selectedDetail === "graph" && historicalPrices.length > 0) {
@@ -484,6 +502,7 @@ const Dashboard = ({ onLogout }) => {
                       borderRadius: "4px",
                       marginBottom: "10px",
                       fontSize: "22px",
+                      transition: "background-color 0.3s, transform 0.3s",
                       backgroundColor:
                         selectedDetail === "graph"
                           ? isDarkMode
@@ -494,6 +513,7 @@ const Dashboard = ({ onLogout }) => {
                           : "#fff",
                       "&:hover": {
                         backgroundColor: isDarkMode ? "#616161" : "#b2ebf2",
+                        transform: "translateY(-5px)",
                       },
                     }}
                     onClick={() => setSelectedDetail("graph")}
