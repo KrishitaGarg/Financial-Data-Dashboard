@@ -30,6 +30,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import "./styles.css";
 import MenuIcon from "../assets/menu.png";
+import LiveStockTicker from "./LiveStockTicker";
 
 Chart.register(...registerables);
 
@@ -195,7 +196,6 @@ const Dashboard = ({ onLogout }) => {
         return;
       }
 
-      // Destroy old chart instance if it exists
       if (chartInstanceRef.current) {
         chartInstanceRef.current.destroy();
       }
@@ -308,7 +308,6 @@ const Dashboard = ({ onLogout }) => {
     [selectedSymbol, chartType, isDarkMode]
   );
 
-
   useEffect(() => {
     if (selectedDetail === "graph" && historicalPrices.length > 0) {
       console.log("Plotting chart with data:", historicalPrices);
@@ -349,81 +348,89 @@ const Dashboard = ({ onLogout }) => {
         <Box sx={{ display: "flex", height: "100%" }}>
           {/* Sidebar */}
           <Box sx={{ flex: 1, padding: "20px", borderRight: "1px solid #ccc" }}>
-            <TextField
-              label="Search Symbol"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              slotProps={{
-                input: {
-                  style: {
-                    backgroundColor: isDarkMode ? "#424242" : "#fff",
-                    color: isDarkMode ? "#fff" : "#000",
-                  },
-                },
-                inputLabel: {
-                  style: {
-                    color: isDarkMode ? "#fff" : "#000",
-                  },
-                },
-              }}
-              sx={{
-                backgroundColor: isDarkMode ? "#424242" : "#fff",
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": {
-                    borderColor: "#ccc",
-                  },
-                  "&:hover fieldset": {
-                    borderColor: "#aaa",
-                  },
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#888",
-                  },
-                },
-              }}
-            />
-
-            <FormControl fullWidth margin="normal">
-              <InputLabel
-                sx={{
-                  color: isDarkMode ? "#fff" : "#000",
-                }}
-              >
-                Select Stock Symbol
-              </InputLabel>
-              <Select
-                value={selectedSymbol}
-                onChange={(e) => {
-                  setSelectedSymbol(e.target.value);
-                  setSelectedDetail("kpi");
-                }}
+            <Box
+              sx={{ flex: 1, padding: "20px", borderRight: "1px solid #ccc" }}
+            >
+              <TextField
+                label="Search Symbol"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 variant="outlined"
+                fullWidth
+                margin="normal"
+                slotProps={{
+                  input: {
+                    style: {
+                      backgroundColor: isDarkMode ? "#424242" : "#fff",
+                      color: isDarkMode ? "#fff" : "#000",
+                    },
+                  },
+                  inputLabel: {
+                    style: {
+                      color: isDarkMode ? "#fff" : "#000",
+                    },
+                  },
+                }}
                 sx={{
                   backgroundColor: isDarkMode ? "#424242" : "#fff",
-                  color: isDarkMode ? "#fff" : "#000",
-                  "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#ccc",
-                  },
-                  "&:hover .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#aaa",
-                  },
-                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#888",
-                  },
-                  "& .MuiSelect-icon": {
-                    color: isDarkMode ? "#fff" : "#000",
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "#ccc",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#aaa",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#888",
+                    },
                   },
                 }}
-              >
-                {filteredStockSymbols.map((symbol) => (
-                  <MenuItem key={symbol.symbol} value={symbol.symbol}>
-                    {symbol.symbol}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+              />
+
+              <div className="stock-symbol-container">
+                <FormControl fullWidth margin="normal">
+                  <InputLabel
+                    sx={{
+                      color: isDarkMode ? "#fff" : "#000",
+                    }}
+                  >
+                    Select Stock Symbol
+                  </InputLabel>
+                  <Select
+                    value={selectedSymbol}
+                    onChange={(e) => {
+                      setSelectedSymbol(e.target.value);
+                      setSelectedDetail("kpi");
+                    }}
+                    variant="outlined"
+                    sx={{
+                      backgroundColor: isDarkMode ? "#424242" : "#fff",
+                      color: isDarkMode ? "#fff" : "#000",
+                      "& .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "#ccc",
+                      },
+                      "&:hover .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "#aaa",
+                      },
+                      "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                        borderColor: "#888",
+                      },
+                      "& .MuiSelect-icon": {
+                        color: isDarkMode ? "#fff" : "#000",
+                      },
+                      borderRadius: "4px",
+                      padding: "0px",
+                    }}
+                  >
+                    {filteredStockSymbols.map((symbol) => (
+                      <MenuItem key={symbol.symbol} value={symbol.symbol}>
+                        {symbol.symbol}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+            </Box>
 
             {loadingSymbols && <CircularProgress />}
             {loadingData && <CircularProgress />}
@@ -520,12 +527,38 @@ const Dashboard = ({ onLogout }) => {
                   >
                     Graphical Analysis
                   </Box>
+                  {/* Live Stock Data Option */}
+                  <Box
+                    sx={{
+                      cursor: "pointer",
+                      padding: "45px",
+                      border: "1px solid #ccc",
+                      borderRadius: "4px",
+                      marginBottom: "10px",
+                      fontSize: "22px",
+                      transition: "background-color 0.3s, transform 0.3s",
+                      backgroundColor:
+                        selectedDetail === "liveData"
+                          ? isDarkMode
+                            ? "#78909C"
+                            : "#e0f7fa"
+                          : isDarkMode
+                          ? "#424242"
+                          : "#fff",
+                      "&:hover": {
+                        backgroundColor: isDarkMode ? "#616161" : "#b2ebf2",
+                        transform: "translateY(-5px)",
+                      },
+                    }}
+                    onClick={() => setSelectedDetail("liveData")}
+                  >
+                    Live Stock Data
+                  </Box>
                 </Box>
               </Box>
             </Box>
           </Box>
 
-          {/* Content Area */}
           <Box sx={{ flex: 2, padding: "20px", position: "relative" }}>
             {/* Conditional rendering based on selected detail */}
             {selectedDetail === "kpi" && (
@@ -568,21 +601,31 @@ const Dashboard = ({ onLogout }) => {
               mt={2}
               sx={{
                 border: "1px solid #ddd",
-                boxShadow: "0 4px 15px rgba(0, 0, 0, 0.2)",
+                borderRadius: "8px",
+                boxShadow: "0 4px 15px rgba(0, 0, 0, 0.3)",
                 padding: "15px",
                 backgroundColor: isDarkMode ? "#424242" : "#fff",
                 position: "relative",
+                overflow: "hidden",
+                "&:hover": {
+                  boxShadow: "0 6px 20px rgba(0, 0, 0, 0.4)",
+                },
               }}
             >
               {selectedDetail === "graph" && (
                 <Box>
                   <canvas
                     ref={canvasRef}
-                    style={{ width: "100%", height: "400px" }}
+                    style={{
+                      width: "100%",
+                      height: "400px",
+                      borderRadius: "8px",
+                    }}
                   />
                 </Box>
               )}
             </Box>
+
             {/* Financial Ratios Content */}
             {selectedDetail === "ratios" && (
               <Box
@@ -617,6 +660,36 @@ const Dashboard = ({ onLogout }) => {
                 ) : (
                   <Typography>Fetching Financial ratios data...</Typography>
                 )}
+              </Box>
+            )}
+
+            {/* Live Stock Data */}
+            {selectedDetail === "liveData" && (
+              <Box
+                mt={2}
+                sx={{
+                  border: "1px solid #ddd",
+                  borderRadius: "8px",
+                  boxShadow: "0 4px 15px rgba(0, 0, 0, 0.1)",
+                  padding: "15px",
+                  backgroundColor: isDarkMode ? "#424242" : "#fff",
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    boxShadow: "0 8px 20px rgba(0, 0, 0, 0.2)",
+                    transform: "scale(1.02)",
+                  },
+                }}
+              >
+                <Typography
+                  variant="h5"
+                  sx={{ fontWeight: "bold", marginBottom: 2 }}
+                >
+                  Live Stock Data of {selectedSymbol}
+                </Typography>
+                <LiveStockTicker
+                  selectedSymbol={selectedSymbol}
+                  theme={isDarkMode ? darkTheme : lightTheme}
+                />
               </Box>
             )}
           </Box>
