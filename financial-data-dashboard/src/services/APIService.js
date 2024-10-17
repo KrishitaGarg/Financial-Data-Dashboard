@@ -1,7 +1,6 @@
 const BASE_URL = "https://financialmodelingprep.com/api/v3";
-const API_KEY = process.env.REACT_APP_FMP_API_KEY; // Ensure the .env file contains the correct key
+const API_KEY = process.env.REACT_APP_FMP_API_KEY;
 
-// Fetch stock symbols
 export const fetchStockSymbols = async () => {
   try {
     const response = await fetch(`${BASE_URL}/stock/list?apikey=${API_KEY}`);
@@ -14,7 +13,6 @@ export const fetchStockSymbols = async () => {
   }
 };
 
-// Fetch historical prices for a given stock symbol
 export const fetchHistoricalPrices = async (symbol) => {
   try {
     const response = await fetch(
@@ -30,7 +28,6 @@ export const fetchHistoricalPrices = async (symbol) => {
   }
 };
 
-// Fetch Financial Ratios data for a given stock symbol
 export const fetchFinancialRatios = async (symbol) => {
   try {
     const response = await fetch(
@@ -38,14 +35,13 @@ export const fetchFinancialRatios = async (symbol) => {
     );
     if (!response.ok) throw new Error(`Failed to fetch Financial Ratios data for ${symbol}`);
     const FRData = await response.json();
-    return FRData[0] || {}; // Return the first element if it exists
+    return FRData[0] || {};
   } catch (error) {
     console.error("Error fetching Financial Ratios data:", error.message);
     return {};
   }
 };
 
-// Fetch KPI data for a given stock symbol
 export const fetchKPIData = async (symbol) => {
   try {
     const response = await fetch(
@@ -53,7 +49,7 @@ export const fetchKPIData = async (symbol) => {
     );
     if (!response.ok) throw new Error(`Failed to fetch KPI data for ${symbol}`);
     const kpiData = await response.json();
-    return kpiData[0] || {}; // Return the first element if it exists
+    return kpiData[0] || {};
   } catch (error) {
     console.error("Error fetching KPI data:", error.message);
     return {};

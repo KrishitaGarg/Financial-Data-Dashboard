@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import {
   fetchStockSymbols,
   fetchHistoricalPrices,
@@ -61,7 +61,7 @@ const Dashboard = ({ onLogout }) => {
   const [chartType, setChartType] = useState("line");
   const [searchTerm, setSearchTerm] = useState("");
   const [kpis, setKpis] = useState({});
-  const [selectedDetail, setSelectedDetail] = useState("graph");
+  const [selectedDetail, setSelectedDetail] = useState("kpi");
   const [timeframe, setTimeframe] = useState("1mo");
   const [searchTimeout, setSearchTimeout] = useState(null);
   const canvasRef = useRef(null);
@@ -172,21 +172,14 @@ const Dashboard = ({ onLogout }) => {
   useEffect(() => {
     const getHistoricalPrices = async () => {
       if (selectedSymbol) {
-        setLoadingData(true);
         try {
           const prices = await fetchHistoricalPrices(selectedSymbol);
-          if (Array.isArray(prices)) {
-            setHistoricalPrices(prices);
-          } else {
-            setError("Invalid historical prices data received.");
-            setHistoricalPrices([]);
-          }
+          setHistoricalPrices(prices);
+          console.log(prices);
         } catch (error) {
-          console.error(error);
+          console.error("Error fetching historical prices:", error);
           setError("Error fetching historical prices data. Please try again.");
           setHistoricalPrices([]);
-        } finally {
-          setLoadingData(false);
         }
       }
     };
@@ -194,105 +187,116 @@ const Dashboard = ({ onLogout }) => {
     getHistoricalPrices();
   }, [selectedSymbol]);
 
-  const plotChart = (data) => {
-    const canvas = canvasRef.current;
-    if (!canvas) {
-      console.error("Canvas is null or not yet rendered.");
-      return;
-    }
+  const plotChart = useCallback(
+    (data) => {
+      const canvas = canvasRef.current;
+      if (!canvas) {
+        console.error("Canvas element is not yet rendered.");
+        return;
+      }
 
-    // Destroy old chart instance if it exists
-    if (chartInstanceRef.current) {
-      chartInstanceRef.current.destroy();
-    }
+      // Destroy old chart instance if it exists
+      if (chartInstanceRef.current) {
+        chartInstanceRef.current.destroy();
+      }
 
-    const ctx = canvas.getContext("2d");
+      const ctx = canvas.getContext("2d");
 
-    const labels = data.map((d) => d.date);
-    const openingPrices = data.map((d) => d.open);
-    const closingPrices = data.map((d) => d.close);
+      const labels = data.map((d) => d.date);
+      const openingPrices = data.map((d) => d.open);
+      const closingPrices = data.map((d) => d.close);
 
-    if (
-      labels.length === 0 ||
-      openingPrices.length === 0 ||
-      closingPrices.length === 0
-    ) {
-      console.warn("No data to plot");
-      return;
-    }
+      if (!labels.length || !openingPrices.length || !closingPrices.length) {
+        console.warn("No valid data to plot");
+        return;
+      }
 
-    chartInstanceRef.current = new Chart(ctx, {
-      type: chartType,
-      data: {
-        labels: labels,
-        datasets: [
-          {
-            label: `${selectedSymbol} Opening Price`,
-            data: openingPrices,
-            borderColor: "rgba(75, 192, 192, 1)",
-            backgroundColor: "rgba(75, 192, 192, 0.2)",
-            pointRadius: 3,
-            fill: false,
-            tension: 0.3,
+      chartInstanceRef.current = new Chart(ctx, {
+        type: chartType,
+        data: {
+          labels,
+          datasets: [
+            {
+              label: `${selectedSymbol} Opening Price`,
+              data: openingPrices,
+              borderColor: isDarkMode
+                ? "rgba(75, 192, 192, 0.8)"
+                : "rgba(75, 192, 192, 1)",
+              backgroundColor: isDarkMode
+                ? "rgba(75, 192, 192, 0.1)"
+                : "rgba(75, 192, 192, 0.2)",
+              pointRadius: 3,
+              fill: false,
+              tension: 0.3,
+              color: isDarkMode ? "#f5f5f5" : "#000",
+            },
+            {
+              label: `${selectedSymbol} Closing Price`,
+              data: closingPrices,
+              borderColor: isDarkMode
+                ? "rgba(255, 99, 132, 0.8)"
+                : "rgba(255, 99, 132, 1)",
+              backgroundColor: isDarkMode
+                ? "rgba(255, 99, 132, 0.1)"
+                : "rgba(255, 99, 132, 0.2)",
+              pointRadius: 3,
+              fill: false,
+              tension: 0.3,
+              color: isDarkMode ? "#f5f5f5" : "#000",
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: (tooltipItem) => {
+                  return `${
+                    tooltipItem.dataset.label
+                  }: $${tooltipItem.raw.toFixed(2)} (${tooltipItem.label})`;
+                },
+              },
+            },
           },
-          {
-            label: `${selectedSymbol} Closing Price`,
-            data: closingPrices,
-            borderColor: "rgba(255, 99, 132, 1)",
-            backgroundColor: "rgba(255, 99, 132, 0.2)",
-            pointRadius: 3,
-            fill: false,
-            tension: 0.3,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          tooltip: {
-            callbacks: {
-              label: (tooltipItem) => {
-                return `${
-                  tooltipItem.dataset.label
-                }: $${tooltipItem.raw.toFixed(2)} (${tooltipItem.label})`;
+          scales: {
+            x: {
+              title: { display: true, text: "Date" },
+              type: "time",
+              time: {
+                unit: "day",
+                tooltipFormat: "MMM dd, yyyy",
+              },
+              ticks: {
+                color: isDarkMode ? "#f5f5f5" : "#000",
+              },
+              grid: {
+                color: isDarkMode ? "#757575" : "#ddd",
+              },
+            },
+            y: {
+              title: { display: true, text: "Price (USD)" },
+              beginAtZero: false,
+              ticks: {
+                color: isDarkMode ? "#f5f5f5" : "#000",
+              },
+              grid: {
+                color: isDarkMode ? "#757575" : "#ddd",
               },
             },
           },
         },
-        scales: {
-          x: {
-            title: { display: true, text: "Date" },
-            type: "time",
-            time: {
-              unit: "day",
-              tooltipFormat: "MMM dd, yyyy",
-            },
-          },
-          y: {
-            title: { display: true, text: "Price (USD)" },
-            beginAtZero: false,
-          },
-        },
-      },
-    });
-  };
-
+      });
+    },
+    [selectedSymbol, chartType]
+  );
 
   useEffect(() => {
-    if (!canvasRef.current) {
-      console.error("Canvas element is not yet rendered.");
-      return;
-    }
-
-    if (historicalPrices.length > 0) {
+    if (selectedDetail === "graph" && historicalPrices.length > 0) {
       console.log("Plotting chart with data:", historicalPrices);
       plotChart(historicalPrices);
-    } else if (chartInstanceRef.current) {
-      chartInstanceRef.current.destroy();
     }
-  }, [historicalPrices]);
-
-
+  }, [selectedDetail, historicalPrices, plotChart]);
 
   return (
     <ThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
@@ -539,14 +543,26 @@ const Dashboard = ({ onLogout }) => {
                 )}
               </Box>
             )}
-
             {/* Graph Content */}
-            {selectedDetail === "graph" && (
-              <Box mt={2}>
-                <canvas id="myChart" ref={canvasRef} />
-              </Box>
-            )}
-
+            <Box
+              mt={2}
+              sx={{
+                border: "1px solid #ddd",
+                boxShadow: "0 4px 15px rgba(0, 0, 0, 0.2)",
+                padding: "15px",
+                backgroundColor: isDarkMode ? "#424242" : "#fff",
+                position: "relative",
+              }}
+            >
+              {selectedDetail === "graph" && (
+                <Box>
+                  <canvas
+                    ref={canvasRef}
+                    style={{ width: "100%", height: "400px" }}
+                  />
+                </Box>
+              )}
+            </Box>
             {/* Financial Ratios Content */}
             {selectedDetail === "ratios" && (
               <Box
