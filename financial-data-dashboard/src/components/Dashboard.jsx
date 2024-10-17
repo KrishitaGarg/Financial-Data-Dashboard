@@ -197,13 +197,16 @@ const Dashboard = ({ onLogout }) => {
   const plotChart = (data) => {
     const canvas = canvasRef.current;
     if (!canvas) {
-      console.error("Canvas is null");
+      console.error("Canvas is null or not yet rendered.");
       return;
     }
 
+    // Destroy old chart instance if it exists
     if (chartInstanceRef.current) {
       chartInstanceRef.current.destroy();
     }
+
+    const ctx = canvas.getContext("2d");
 
     const labels = data.map((d) => d.date);
     const openingPrices = data.map((d) => d.open);
@@ -217,8 +220,6 @@ const Dashboard = ({ onLogout }) => {
       console.warn("No data to plot");
       return;
     }
-
-    const ctx = canvas.getContext("2d");
 
     chartInstanceRef.current = new Chart(ctx, {
       type: chartType,
@@ -276,7 +277,13 @@ const Dashboard = ({ onLogout }) => {
     });
   };
 
+
   useEffect(() => {
+    if (!canvasRef.current) {
+      console.error("Canvas element is not yet rendered.");
+      return;
+    }
+
     if (historicalPrices.length > 0) {
       console.log("Plotting chart with data:", historicalPrices);
       plotChart(historicalPrices);
@@ -284,6 +291,8 @@ const Dashboard = ({ onLogout }) => {
       chartInstanceRef.current.destroy();
     }
   }, [historicalPrices]);
+
+
 
   return (
     <ThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
@@ -521,7 +530,7 @@ const Dashboard = ({ onLogout }) => {
                       }}
                     >
                       <Typography variant="h6">
-                        {key}: {value}
+                        {toTitleCaseWithSpaces(key)}: {value}
                       </Typography>
                     </Box>
                   ))
@@ -534,23 +543,43 @@ const Dashboard = ({ onLogout }) => {
             {/* Graph Content */}
             {selectedDetail === "graph" && (
               <Box mt={2}>
-                <canvas id="myChart" ref={chartRef} />
+                <canvas id="myChart" ref={canvasRef} />
               </Box>
             )}
 
             {/* Financial Ratios Content */}
             {selectedDetail === "ratios" && (
-              <Box mt={2}>
-                {FRs.length > 0 ? (
-                  <ul>
-                    {FRs.map((ratio, idx) => (
-                      <li key={idx}>
-                        {ratio.name}: {ratio.value}
-                      </li>
-                    ))}
-                  </ul>
+              <Box
+                mt={2}
+                sx={{
+                  border: "1px solid #ddd",
+                  boxShadow: "0 4px 15px rgba(0, 0, 0, 0.2)",
+                  padding: "15px",
+                  backgroundColor: isDarkMode ? "#424242" : "#fff",
+                }}
+              >
+                {Object.keys(FRs).length > 0 ? (
+                  Object.entries(FRs).map(([key, value]) => (
+                    <Box
+                      key={key}
+                      sx={{
+                        border: "1px solid #ccc",
+                        borderRadius: "10px",
+                        padding: "5px",
+                        marginBottom: "10px",
+                        backgroundColor: isDarkMode ? "#616161" : "#e0f7fa",
+                        "&:hover": {
+                          backgroundColor: isDarkMode ? "#424242" : "#b2ebf2",
+                        },
+                      }}
+                    >
+                      <Typography variant="h6">
+                        {toTitleCaseWithSpaces(key)}: {value}
+                      </Typography>
+                    </Box>
+                  ))
                 ) : (
-                  <Typography>No ratios available.</Typography>
+                  <Typography>Fetching Financial ratios data...</Typography>
                 )}
               </Box>
             )}
