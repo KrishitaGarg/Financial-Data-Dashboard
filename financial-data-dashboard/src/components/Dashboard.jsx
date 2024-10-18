@@ -196,6 +196,8 @@ const Dashboard = ({ onLogout }) => {
         return;
       }
 
+      setLoadingData(true);
+
       if (chartInstanceRef.current) {
         chartInstanceRef.current.destroy();
       }
@@ -208,6 +210,7 @@ const Dashboard = ({ onLogout }) => {
 
       if (!labels.length || !openingPrices.length || !closingPrices.length) {
         console.warn("No valid data to plot");
+        setLoadingData(false);
         return;
       }
 
@@ -305,6 +308,7 @@ const Dashboard = ({ onLogout }) => {
           },
         },
       });
+      setLoadingData(false);
     },
     [selectedSymbol, chartType, isDarkMode]
   );
@@ -507,9 +511,7 @@ const Dashboard = ({ onLogout }) => {
                 </Box>
               ))
             ) : (
-              <Typography sx={{ color: isDarkMode ? "#aaa" : "#666" }}>
-                Fetching KPI data...
-              </Typography>
+              <CircularProgress color="inherit" />
             )}
           </Box>
 
@@ -540,12 +542,14 @@ const Dashboard = ({ onLogout }) => {
             >
               Graphical Analysis
             </Typography>
-            <canvas
-              ref={canvasRef}
-              style={{
-                borderRadius: "10px",
-              }}
-            />
+            {loadingData ? (
+              <CircularProgress />
+            ) : (
+              <canvas
+                ref={canvasRef}
+                style={{ borderRadius: "10px" }}
+              />
+            )}
           </Box>
 
           {/* Financial Ratios Data Box */}
@@ -599,9 +603,7 @@ const Dashboard = ({ onLogout }) => {
                 </Box>
               ))
             ) : (
-              <Typography sx={{ color: isDarkMode ? "#aaa" : "#666" }}>
-                Fetching Financial Ratios data...
-              </Typography>
+              <CircularProgress color="inherit" />
             )}
           </Box>
 
