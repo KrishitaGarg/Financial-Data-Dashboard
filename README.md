@@ -10,7 +10,6 @@ This project is a **Custom Dashboard** designed to display key metrics of the st
 - [API Integration](#api-integration)
 - [Deployment](#deployment)
 - [Technologies Used](#technologies-used)
-- [Customization](#customization)
 - [License](#license)
 
 ## Features
