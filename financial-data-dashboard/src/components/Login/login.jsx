@@ -248,7 +248,14 @@ const SignInSignUp = ({ onLogin }) => {
   return (
     <Container>
       <SignUpContainer signingIn={signIn}>
-        <Form onSubmit={handleSignUp}>
+        <Form
+          onSubmit={handleSignUp}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
           <Title>Create Account</Title>
           <Input
             type="text"
@@ -286,12 +293,22 @@ const SignInSignUp = ({ onLogin }) => {
             alt="Or"
             style={{ marginRight: "10px", width: "350px", marginTop: "15px" }}
           />
-          <GhostButton onClick={handleGoogleSignUp} style={{ width: "100%" }}>
+          <GhostButton
+            onClick={handleGoogleSignUp}
+            style={{
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              border: "2px solid white",
+            }}
+          >
             <img
               src={GoogleIcon}
               alt="Google"
               style={{ marginRight: "10px", width: "30px" }}
             />
+            Sign Up with Google
           </GhostButton>
           <Button type="submit" style={{ width: "100%", fontSize: "14px" }}>
             Sign Up
@@ -300,7 +317,14 @@ const SignInSignUp = ({ onLogin }) => {
       </SignUpContainer>
 
       <SignInContainer signingIn={signIn}>
-        <Form onSubmit={handleSignIn}>
+        <Form
+          onSubmit={handleSignIn}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
           <Title>Sign In</Title>
           <Input
             type="email"
@@ -324,12 +348,22 @@ const SignInSignUp = ({ onLogin }) => {
             alt="Or"
             style={{ marginRight: "10px", width: "350px", marginTop: "15px" }}
           />
-          <GhostButton onClick={handleGoogleSignIn} style={{ width: "100%" }}>
+          <GhostButton
+            onClick={handleGoogleSignIn}
+            style={{
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              border: "2px solid white",
+            }}
+          >
             <img
               src={GoogleIcon}
               alt="Google"
               style={{ marginRight: "10px", width: "30px" }}
             />
+            Sign In with Google
           </GhostButton>
         </Form>
       </SignInContainer>
