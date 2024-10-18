@@ -348,9 +348,7 @@ const Dashboard = ({ onLogout }) => {
         <Box sx={{ display: "flex", height: "100%" }}>
           {/* Sidebar */}
           <Box sx={{ flex: 1, padding: "20px", borderRight: "1px solid #ccc" }}>
-            <Box
-              sx={{ flex: 1, padding: "20px", borderRight: "1px solid #ccc" }}
-            >
+            <Box sx={{ padding: "20px" }}>
               <TextField
                 label="Search Symbol"
                 value={searchTerm}
@@ -422,13 +420,32 @@ const Dashboard = ({ onLogout }) => {
                       padding: "0px",
                     }}
                   >
-                    {filteredStockSymbols.map((symbol) => (
-                      <MenuItem key={symbol.symbol} value={symbol.symbol}>
-                        {symbol.symbol}
-                      </MenuItem>
-                    ))}
+                    <MenuItem value="" disabled>
+                      Select a stock symbol
+                    </MenuItem>
+                    {filteredStockSymbols.length > 0 ? (
+                      filteredStockSymbols.map((symbol) => (
+                        <MenuItem key={symbol.symbol} value={symbol.symbol}>
+                          {symbol.symbol}
+                        </MenuItem>
+                      ))
+                    ) : (
+                      <MenuItem disabled>No symbols found</MenuItem>
+                    )}
                   </Select>
                 </FormControl>
+
+                {!selectedSymbol && (
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: isDarkMode ? "#fff" : "#000",
+                      marginTop: "10px",
+                    }}
+                  >
+                    Please select a stock symbol to view details.
+                  </Typography>
+                )}
               </div>
             </Box>
 
