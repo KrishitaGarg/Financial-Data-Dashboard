@@ -22,11 +22,12 @@ const CustomTooltip = ({ active, payload, label }) => {
     return (
       <Box
         sx={{
-          backgroundColor: "white",
+          backgroundColor: "#b9e6e3",
           border: "1px solid #ddd",
           borderRadius: "5px",
           padding: "10px",
           boxShadow: "0 2px 10px rgba(0, 0, 0, 0.2)",
+          color: "black",
         }}
       >
         <Typography variant="subtitle1">{`Time: ${label}`}</Typography>
@@ -120,7 +121,7 @@ const LiveStockTicker = ({ selectedSymbol }) => {
         <Alert severity="error">{errorMessage}</Alert>
       ) : (
         <>
-          <Typography variant="h5" marginBottom={3}>
+          <Typography variant="h5" marginBottom={5}>
             Current Price : {livePrice ? `$${livePrice.toFixed(4)}` : "No data"}{" "}
           </Typography>
           <ResponsiveContainer width="100%" height={300}>
@@ -128,10 +129,12 @@ const LiveStockTicker = ({ selectedSymbol }) => {
               data={historicalData}
               margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
             >
-              <CartesianGrid strokeDasharray="3 3" />
+              <CartesianGrid strokeDasharray="3 3" stroke="black" />
               <XAxis
                 dataKey="time"
                 label={{ value: "Time", position: "bottom", offset: -7 }}
+                tick={{ fill: "black" }}
+                stroke="black"
               />
               <YAxis
                 domain={[
@@ -144,6 +147,8 @@ const LiveStockTicker = ({ selectedSymbol }) => {
                   position: "insideLeft",
                   offset: -13,
                 }}
+                tick={{ fill: "black" }}
+                stroke="black"
               />
               <Tooltip content={<CustomTooltip />} />
               <Line

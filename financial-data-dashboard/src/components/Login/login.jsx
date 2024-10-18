@@ -310,7 +310,15 @@ const SignInSignUp = ({ onLogin }) => {
             />
             Sign Up with Google
           </GhostButton>
-          <Button type="submit" style={{ width: "100%", fontSize: "14px" }}>
+          <Button
+            type="submit"
+            style={{
+              width: "100%",
+              fontSize: "14px",
+              backgroundColor: "green",
+              color: "white",
+            }}
+          >
             Sign Up
           </Button>
         </Form>
@@ -340,7 +348,15 @@ const SignInSignUp = ({ onLogin }) => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <Button type="submit" style={{ width: "100%", fontSize: "14px" }}>
+          <Button
+            type="submit"
+            style={{
+              width: "100%",
+              fontSize: "14px",
+              backgroundColor: "green",
+              color: "white",
+            }}
+          >
             Sign In
           </Button>
           <img

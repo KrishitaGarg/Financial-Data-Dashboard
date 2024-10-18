@@ -248,6 +248,7 @@ const Dashboard = ({ onLogout }) => {
         },
         options: {
           responsive: true,
+          maintainAspectRatio: false,
           plugins: {
             tooltip: {
               callbacks: {
@@ -284,7 +285,7 @@ const Dashboard = ({ onLogout }) => {
                 color: isDarkMode ? "#fff" : "#000",
               },
               grid: {
-                color: isDarkMode ? "#757575" : "#ddd",
+                color: isDarkMode ? "white" : "black",
               },
             },
             y: {
@@ -298,7 +299,7 @@ const Dashboard = ({ onLogout }) => {
                 color: isDarkMode ? "#fff" : "#000",
               },
               grid: {
-                color: isDarkMode ? "#757575" : "#ddd",
+                color: isDarkMode ? "white" : "black",
               },
             },
           },
@@ -309,11 +310,11 @@ const Dashboard = ({ onLogout }) => {
   );
 
   useEffect(() => {
-    if (selectedDetail === "graph" && historicalPrices.length > 0) {
+    if (historicalPrices.length > 0) {
       console.log("Plotting chart with data:", historicalPrices);
       plotChart(historicalPrices);
     }
-  }, [selectedDetail, historicalPrices, plotChart]);
+  }, [historicalPrices, plotChart]);
 
   return (
     <ThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
@@ -322,393 +323,315 @@ const Dashboard = ({ onLogout }) => {
         sx={{ padding: 0, height: "100vh", width: "100vw" }}
       >
         {/* Header */}
-        <AppBar position="static" sx={{ mb: 2 }}>
-          <Toolbar sx={{ justifyContent: "space-between" }}>
-            <IconButton edge="start" color="inherit" aria-label="menu">
-              <img
-                src={MenuIcon}
-                alt="Menu"
-                style={{ width: 28, height: 28, backgroundColor: "none" }}
-              />
-            </IconButton>
-            <Typography variant="h5">Stock Dashboard</Typography>
+        <AppBar
+          position="static"
+          sx={{
+            mb: 2,
+            backgroundColor: isDarkMode ? "#1a1a1a" : "#1976d2",
+            boxShadow: "0 3px 10px rgba(0, 0, 0, 0.2)",
+          }}
+        >
+          <Toolbar sx={{ justifyContent: "space-between", padding: "0 20px" }}>
+            <Typography
+              variant="h5"
+              sx={{ fontWeight: "bold", color: "#fff", letterSpacing: "1px" }}
+            >
+              Stock Dashboard
+            </Typography>
             <Box display="flex" alignItems="center">
-              <Typography variant="body1" sx={{}}>
+              <Typography
+                variant="body1"
+                sx={{ marginRight: "10px", color: "#fff" }}
+              >
                 {isDarkMode ? "🌛" : "🌞"}
               </Typography>
               <Switch checked={isDarkMode} onChange={handleThemeToggle} />
-              <Button color="inherit" onClick={onLogout}>
+              <Button
+                color="inherit"
+                onClick={onLogout}
+                sx={{
+                  backgroundColor: isDarkMode ? "#333" : "#fff",
+                  color: isDarkMode ? "#fff" : "#1976d2",
+                  borderRadius: "8px",
+                  padding: "5px 15px",
+                  marginLeft: "20px",
+                  textTransform: "capitalize",
+                }}
+              >
                 Logout
               </Button>
             </Box>
           </Toolbar>
         </AppBar>
 
-        {/* Main Layout */}
-        <Box sx={{ display: "flex", height: "100%" }}>
-          {/* Sidebar */}
-          <Box sx={{ flex: 1, padding: "20px", borderRight: "1px solid #ccc" }}>
-            <Box sx={{ padding: "20px" }}>
-              <TextField
-                label="Search Symbol"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                variant="outlined"
-                fullWidth
-                margin="normal"
-                slotProps={{
-                  input: {
-                    style: {
-                      backgroundColor: isDarkMode ? "#424242" : "#fff",
-                      color: isDarkMode ? "#fff" : "#000",
-                    },
-                  },
-                  inputLabel: {
-                    style: {
-                      color: isDarkMode ? "#fff" : "#000",
-                    },
-                  },
-                }}
-                sx={{
-                  backgroundColor: isDarkMode ? "#424242" : "#fff",
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: "#ccc",
-                    },
-                    "&:hover fieldset": {
-                      borderColor: "#aaa",
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#888",
-                    },
-                  },
-                }}
-              />
-
-              <div className="stock-symbol-container">
-                <FormControl fullWidth margin="normal">
-                  <InputLabel
-                    sx={{
-                      color: isDarkMode ? "#fff" : "#000",
-                    }}
-                  >
-                    Select Stock Symbol
-                  </InputLabel>
-                  <Select
-                    value={selectedSymbol}
-                    onChange={(e) => {
-                      setSelectedSymbol(e.target.value);
-                      setSelectedDetail("kpi");
-                    }}
-                    variant="outlined"
-                    sx={{
-                      backgroundColor: isDarkMode ? "#424242" : "#fff",
-                      color: isDarkMode ? "#fff" : "#000",
-                      "& .MuiOutlinedInput-notchedOutline": {
-                        borderColor: "#ccc",
-                      },
-                      "&:hover .MuiOutlinedInput-notchedOutline": {
-                        borderColor: "#aaa",
-                      },
-                      "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                        borderColor: "#888",
-                      },
-                      "& .MuiSelect-icon": {
-                        color: isDarkMode ? "#fff" : "#000",
-                      },
-                      borderRadius: "4px",
-                      padding: "0px",
-                    }}
-                  >
-                    <MenuItem value="" disabled>
-                      Select a stock symbol
-                    </MenuItem>
-                    {filteredStockSymbols.length > 0 ? (
-                      filteredStockSymbols.map((symbol) => (
-                        <MenuItem key={symbol.symbol} value={symbol.symbol}>
-                          {symbol.symbol}
-                        </MenuItem>
-                      ))
-                    ) : (
-                      <MenuItem disabled>No symbols found</MenuItem>
-                    )}
-                  </Select>
-                </FormControl>
-
-                {!selectedSymbol && (
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: isDarkMode ? "#fff" : "#000",
-                      marginTop: "10px",
-                    }}
-                  >
-                    Please select a stock symbol to view details.
-                  </Typography>
-                )}
-              </div>
-            </Box>
-
-            {loadingSymbols && <CircularProgress />}
-            {loadingData && <CircularProgress />}
-
-            {error && (
-              <Typography color="error" variant="h6">
-                {error}
-              </Typography>
-            )}
-
-            {/* Sidebar options */}
-            <Box mt={4}>
-              <Box
-                sx={{
-                  backgroundColor: isDarkMode ? "#424242" : "#f0f0f0",
-                  padding: "10px",
-                  borderRadius: "4px",
-                  marginTop: "10px",
-                }}
-              >
-                {/* Sidebar Sections */}
-                <Box>
-                  <Box
-                    sx={{
-                      cursor: "pointer",
-                      padding: "45px",
-                      border: "1px solid #ccc",
-                      borderRadius: "4px",
-                      marginBottom: "10px",
-                      fontSize: "22px",
-                      backgroundColor:
-                        selectedDetail === "kpi"
-                          ? isDarkMode
-                            ? "#78909C"
-                            : "#e0f7fa"
-                          : isDarkMode
-                          ? "#424242"
-                          : "#fff",
-                      "&:hover": {
-                        backgroundColor: isDarkMode ? "#616161" : "#b2ebf2",
-                      },
-                    }}
-                    onClick={() => setSelectedDetail("kpi")}
-                  >
-                    KPI Data
-                  </Box>
-                  <Box
-                    sx={{
-                      cursor: "pointer",
-                      padding: "45px",
-                      border: "1px solid #ccc",
-                      borderRadius: "4px",
-                      marginBottom: "10px",
-                      fontSize: "22px",
-                      backgroundColor:
-                        selectedDetail === "ratios"
-                          ? isDarkMode
-                            ? "#78909C"
-                            : "#e0f7fa"
-                          : isDarkMode
-                          ? "#424242"
-                          : "#fff",
-                      "&:hover": {
-                        backgroundColor: isDarkMode ? "#616161" : "#b2ebf2",
-                      },
-                    }}
-                    onClick={() => setSelectedDetail("ratios")}
-                  >
-                    Financial Ratios
-                  </Box>
-                  <Box
-                    sx={{
-                      cursor: "pointer",
-                      padding: "45px",
-                      border: "1px solid #ccc",
-                      borderRadius: "4px",
-                      marginBottom: "10px",
-                      fontSize: "22px",
-                      transition: "background-color 0.3s, transform 0.3s",
-                      backgroundColor:
-                        selectedDetail === "graph"
-                          ? isDarkMode
-                            ? "#78909C"
-                            : "#e0f7fa"
-                          : isDarkMode
-                          ? "#424242"
-                          : "#fff",
-                      "&:hover": {
-                        backgroundColor: isDarkMode ? "#616161" : "#b2ebf2",
-                        transform: "translateY(-5px)",
-                      },
-                    }}
-                    onClick={() => setSelectedDetail("graph")}
-                  >
-                    Graphical Analysis
-                  </Box>
-                  {/* Live Stock Data Option */}
-                  <Box
-                    sx={{
-                      cursor: "pointer",
-                      padding: "45px",
-                      border: "1px solid #ccc",
-                      borderRadius: "4px",
-                      marginBottom: "10px",
-                      fontSize: "22px",
-                      transition: "background-color 0.3s, transform 0.3s",
-                      backgroundColor:
-                        selectedDetail === "liveData"
-                          ? isDarkMode
-                            ? "#78909C"
-                            : "#e0f7fa"
-                          : isDarkMode
-                          ? "#424242"
-                          : "#fff",
-                      "&:hover": {
-                        backgroundColor: isDarkMode ? "#616161" : "#b2ebf2",
-                        transform: "translateY(-5px)",
-                      },
-                    }}
-                    onClick={() => setSelectedDetail("liveData")}
-                  >
-                    Live Stock Data
-                  </Box>
-                </Box>
-              </Box>
-            </Box>
-          </Box>
-
-          <Box sx={{ flex: 2, padding: "20px", position: "relative" }}>
-            {/* Conditional rendering based on selected detail */}
-            {selectedDetail === "kpi" && (
-              <Box
-                mt={2}
-                sx={{
-                  border: "1px solid #ddd",
-                  boxShadow: "0 4px 15px rgba(0, 0, 0, 0.2)",
-                  padding: "15px",
-                  backgroundColor: isDarkMode ? "#424242" : "#fff",
-                }}
-              >
-                {Object.keys(kpis).length > 0 ? (
-                  Object.entries(kpis).map(([key, value]) => (
-                    <Box
-                      key={key}
-                      sx={{
-                        border: "1px solid #ccc",
-                        borderRadius: "10px",
-                        padding: "5px",
-                        marginBottom: "10px",
-                        backgroundColor: isDarkMode ? "#616161" : "#e0f7fa",
-                        "&:hover": {
-                          backgroundColor: isDarkMode ? "#424242" : "#b2ebf2",
-                        },
-                      }}
-                    >
-                      <Typography variant="h6">
-                        {toTitleCaseWithSpaces(key)}: {value}
-                      </Typography>
-                    </Box>
-                  ))
-                ) : (
-                  <Typography>Fetching KPI data...</Typography>
-                )}
-              </Box>
-            )}
-            {/* Graph Content */}
-            <Box
-              mt={2}
+        {/* Search and Select Options */}
+        <Box
+          sx={{
+            display: "flex",
+            padding: "20px 20px 0 20px",
+            justifyContent: "space-between",
+            gap: "20px",
+          }}
+        >
+          <TextField
+            label="Search Symbol"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            variant="outlined"
+            fullWidth
+            sx={{
+              flex: 1,
+              backgroundColor: isDarkMode ? "#333" : "#fff",
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": {
+                  borderColor: "#ccc",
+                },
+                "&:hover fieldset": {
+                  borderColor: "#aaa",
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "#888",
+                },
+              },
+              borderRadius: "10px",
+            }}
+          />
+          <FormControl fullWidth sx={{ flex: 1 }}>
+            <InputLabel sx={{ color: isDarkMode ? "#fff" : "#000" }}>
+              Select Stock Symbol
+            </InputLabel>
+            <Select
+              value={selectedSymbol}
+              onChange={(e) => {
+                setSelectedSymbol(e.target.value);
+                setSelectedDetail("kpi");
+              }}
+              variant="outlined"
               sx={{
-                border: "1px solid #ddd",
-                borderRadius: "8px",
-                boxShadow: "0 4px 15px rgba(0, 0, 0, 0.3)",
-                padding: "15px",
-                backgroundColor: isDarkMode ? "#424242" : "#fff",
-                position: "relative",
-                overflow: "hidden",
-                "&:hover": {
-                  boxShadow: "0 6px 20px rgba(0, 0, 0, 0.4)",
+                backgroundColor: isDarkMode ? "#333" : "#fff",
+                color: isDarkMode ? "#fff" : "#000",
+                borderRadius: "10px",
+                "& .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "#ccc",
+                },
+                "&:hover .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "#aaa",
+                },
+                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "#888",
+                },
+                "& .MuiSelect-icon": {
+                  color: isDarkMode ? "#fff" : "#000",
                 },
               }}
             >
-              {selectedDetail === "graph" && (
-                <Box>
-                  <canvas
-                    ref={canvasRef}
-                    style={{
-                      width: "100%",
-                      height: "400px",
-                      borderRadius: "8px",
-                    }}
-                  />
-                </Box>
+              <MenuItem value="" disabled>
+                Select a stock symbol
+              </MenuItem>
+              {filteredStockSymbols.length > 0 ? (
+                filteredStockSymbols.map((symbol) => (
+                  <MenuItem key={symbol.symbol} value={symbol.symbol}>
+                    {symbol.symbol}
+                  </MenuItem>
+                ))
+              ) : (
+                <MenuItem disabled>No symbols found</MenuItem>
               )}
-            </Box>
+            </Select>
+          </FormControl>
+        </Box>
 
-            {/* Financial Ratios Content */}
-            {selectedDetail === "ratios" && (
-              <Box
-                mt={2}
-                sx={{
-                  border: "1px solid #ddd",
-                  boxShadow: "0 4px 15px rgba(0, 0, 0, 0.2)",
-                  padding: "15px",
-                  backgroundColor: isDarkMode ? "#424242" : "#fff",
-                }}
-              >
-                {Object.keys(FRs).length > 0 ? (
-                  Object.entries(FRs).map(([key, value]) => (
-                    <Box
-                      key={key}
-                      sx={{
-                        border: "1px solid #ccc",
-                        borderRadius: "10px",
-                        padding: "5px",
-                        marginBottom: "10px",
-                        backgroundColor: isDarkMode ? "#616161" : "#e0f7fa",
-                        "&:hover": {
-                          backgroundColor: isDarkMode ? "#424242" : "#b2ebf2",
-                        },
-                      }}
-                    >
-                      <Typography variant="h6">
-                        {toTitleCaseWithSpaces(key)}: {value}
-                      </Typography>
-                    </Box>
-                  ))
-                ) : (
-                  <Typography>Fetching Financial ratios data...</Typography>
-                )}
-              </Box>
-            )}
-
-            {/* Live Stock Data */}
-            {selectedDetail === "liveData" && (
-              <Box
-                mt={2}
-                sx={{
-                  border: "1px solid #ddd",
-                  borderRadius: "8px",
-                  boxShadow: "0 4px 15px rgba(0, 0, 0, 0.1)",
-                  padding: "15px",
-                  backgroundColor: isDarkMode ? "#424242" : "#fff",
-                  transition: "all 0.3s ease",
-                  "&:hover": {
-                    boxShadow: "0 8px 20px rgba(0, 0, 0, 0.2)",
-                    transform: "scale(1.02)",
-                  },
-                }}
-              >
-                <Typography
-                  variant="h5"
-                  sx={{ fontWeight: "bold", marginBottom: 2 }}
+        {/* Main Layout for Data Boxes */}
+        <Box
+          sx={{
+            padding: "20px",
+            display: "grid",
+            gridTemplateColumns: {
+              xs: "1fr",
+              sm: "repeat(2, 1fr)",
+              md: "1fr",
+              lg: "repeat(2, 1fr)",
+            },
+            gap: "20px",
+            alignItems: "stretch",
+          }}
+        >
+          {/* KPI Data Box */}
+          <Box
+            sx={{
+              border: "1px solid #ddd",
+              padding: "20px",
+              backgroundColor: isDarkMode ? "#625166" : "#ffebcc",
+              boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)",
+              borderRadius: "15px",
+              maxHeight: "550px",
+              overflowY: "auto",
+              transition: "box-shadow 0.3s ease, transform 0.3s ease",
+              "&:hover": {
+                boxShadow: "0 8px 25px rgba(0, 0, 0, 0.3)",
+                transform: "scale(1.02)",
+              },
+            }}
+          >
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: "bold",
+                marginBottom: "10px",
+                color: isDarkMode ? "#fff" : "#333",
+              }}
+            >
+              KPI Data
+            </Typography>
+            {Object.keys(kpis).length > 0 ? (
+              Object.entries(kpis).map(([key, value]) => (
+                <Box
+                  key={key}
+                  sx={{
+                    border: "1px solid #ccc",
+                    borderRadius: "10px",
+                    padding: "5px",
+                    marginBottom: "10px",
+                    backgroundColor: isDarkMode ? "#616161" : "#e0f7fa",
+                    "&:hover": {
+                      backgroundColor: isDarkMode ? "#424242" : "#b2ebf2",
+                    },
+                  }}
                 >
-                  Live Stock Data of {selectedSymbol}
-                </Typography>
-                <LiveStockTicker
-                  selectedSymbol={selectedSymbol}
-                  theme={isDarkMode ? darkTheme : lightTheme}
-                />
-              </Box>
+                  <Typography
+                    key={key}
+                    sx={{ color: isDarkMode ? "white" : "#333" }}
+                  >
+                    {toTitleCaseWithSpaces(key)}: {value}
+                  </Typography>
+                </Box>
+              ))
+            ) : (
+              <Typography sx={{ color: isDarkMode ? "#aaa" : "#666" }}>
+                Fetching KPI data...
+              </Typography>
             )}
+          </Box>
+
+          {/* Graphical Analysis Data Box */}
+          <Box
+            sx={{
+              border: "1px solid #ddd",
+              padding: "20px",
+              backgroundColor: isDarkMode ? "#444238" : "#ccffcc",
+              boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)",
+              borderRadius: "15px",
+              height: "auto",
+              maxHeight: "550px",
+              transition: "box-shadow 0.3s ease, transform 0.3s ease",
+              "&:hover": {
+                boxShadow: "0 8px 25px rgba(0, 0, 0, 0.3)",
+                transform: "scale(1.02)",
+              },
+            }}
+          >
+            <Typography
+              variant="h6"
+              sx={{
+                margin: "0 auto",
+                fontWeight: "bold",
+                color: isDarkMode ? "#fff" : "#333",
+              }}
+            >
+              Graphical Analysis
+            </Typography>
+            <canvas
+              ref={canvasRef}
+              style={{
+                borderRadius: "10px",
+              }}
+            />
+          </Box>
+
+          {/* Financial Ratios Data Box */}
+          <Box
+            sx={{
+              border: "1px solid #ddd",
+              padding: "20px",
+              backgroundColor: isDarkMode ? "#516e5e" : "#e0ccff",
+              boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)",
+              borderRadius: "15px",
+              maxHeight: "550px",
+              overflowY: "auto",
+              transition: "box-shadow 0.3s ease, transform 0.3s ease",
+              "&:hover": {
+                boxShadow: "0 8px 25px rgba(0, 0, 0, 0.3)",
+                transform: "scale(1.02)",
+              },
+            }}
+          >
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: "bold",
+                marginBottom: "10px",
+                color: isDarkMode ? "#fff" : "#333",
+              }}
+            >
+              Financial Ratios
+            </Typography>
+            {Object.keys(FRs).length > 0 ? (
+              Object.entries(FRs).map(([key, value]) => (
+                <Box
+                  key={key}
+                  sx={{
+                    border: "1px solid #ccc",
+                    borderRadius: "10px",
+                    padding: "5px",
+                    marginBottom: "10px",
+                    backgroundColor: isDarkMode ? "#616161" : "#e0f7fa",
+                    "&:hover": {
+                      backgroundColor: isDarkMode ? "#424242" : "#b2ebf2",
+                    },
+                  }}
+                >
+                  <Typography
+                    key={key}
+                    sx={{ color: isDarkMode ? "white" : "#333" }}
+                  >
+                    {toTitleCaseWithSpaces(key)}: {value}
+                  </Typography>
+                </Box>
+              ))
+            ) : (
+              <Typography sx={{ color: isDarkMode ? "#aaa" : "#666" }}>
+                Fetching Financial Ratios data...
+              </Typography>
+            )}
+          </Box>
+
+          {/* Live Stock Data Box */}
+          <Box
+            sx={{
+              border: "1px solid #ddd",
+              paddingTop: "20px",
+              backgroundColor: isDarkMode ? "#b59898" : "#aad0f2",
+              boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)",
+              borderRadius: "15px",
+              height: "auto",
+              maxHeight: "550px",
+              transition: "box-shadow 0.3s ease, transform 0.3s ease",
+              "&:hover": {
+                boxShadow: "0 8px 25px rgba(0, 0, 0, 0.3)",
+                transform: "scale(1.02)",
+              },
+            }}
+          >
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: "bold", color: isDarkMode ? "#fff" : "#333" }}
+            >
+              Live Stock Data
+            </Typography>
+            <LiveStockTicker
+              selectedSymbol={selectedSymbol}
+              theme={isDarkMode ? darkTheme : lightTheme}
+            />
           </Box>
         </Box>
       </Container>
