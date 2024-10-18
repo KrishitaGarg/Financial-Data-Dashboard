@@ -1,70 +1,88 @@
-# Getting Started with Create React App
+# Stock Market KPI Dashboard
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project is a **Custom Dashboard** designed to display key metrics of the stock market with **real-time data** using financial APIs and includes various **data visualizations** for stock prices. The dashboard is built using **React**, with **Chart.js**, **Financial Modeling Prep's API**, and **Finnhub API** to provide accurate financial data and user insights.
 
-## Available Scripts
+## Table of Contents
 
-In the project directory, you can run:
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [API Integration](#api-integration)
+- [Deployment](#deployment)
+- [Technologies Used](#technologies-used)
+- [Customization](#customization)
+- [License](#license)
 
-### `npm start`
+## Features
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **Search and select** stock symbols using a styled input box.
+- **Financial Ratios** and **Graphical representation** as key dashboard sections.
+- **Real-time stock data** for symbols, prices, market capitalization, and other financial metrics.
+- **Interactive charts** visualizing key stock information such as opening/closing prices.
+- **User-friendly interface** with support for both **dark** and **light** modes.
+- **Responsive design**, optimized for desktop and mobile.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Installation
 
-### `npm test`
+To install and run this project locally, follow these steps:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+1. **Clone the repository** :
+   ```bash
+   git clone https://github.com/yourusername/stock-market-kpi-dashboard.git
+   ```
+2. **Navigate to the project directory** :
+   ```bash
+   cd stock-market-kpi-dashboard
+   ```
+3. **Install dependencies** :
+   ```bash
+   npm install
+   ```
+4. **Start the development server** :
+   ```bash
+   npm start
+   ```
+5. **View the app in the browser** :
+   Navigate to `http://localhost:3000/` in your browser.
 
-### `npm run build`
+## Usage
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+1. **Login**: Start by logging into the application using the login page.
+2. **Select a stock symbol**: Use the stock symbol search box to find and then select a stock.
+3. **View key metrics**: The dashboard will display real-time data such as stock price, market capitalization, P/E ratio, and dividend yield.
+4. **Interactive charting**: The dashboard provides charts showing stock performance (open, high, low, close prices) over time, with additional support for customized time frames.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## API Integration
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+This project uses two key APIs to fetch real-time stock market data:
 
-### `npm run eject`
+1. **Financial Modeling Prep API**: Provides data on stock prices, financial ratios, market capitalization, and other key metrics.
+2. **Finnhub API**: Used to retrieve live market data and real-time stock quotes.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### API Key Configuration
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+To use these APIs, you need to configure your API keys. Add your API keys to a `.env` file:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```env
+REACT_APP_FMP_API_KEY=your_fmp_api_key_here
+REACT_APP_FINNHUB_API_KEY=your_finnhub_api_key_here
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Deployment
 
-## Learn More
+This project is deployed on **Vercel**. You can view the live dashboard at:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+[Live Demo on Vercel](https://financial-data-dashboard.vercel.app/)
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Technologies Used
 
-### Code Splitting
+- **React.js**: Frontend library for building interactive user interfaces.
+- **Chart.js**: Library used to create responsive and interactive data visualizations.
+- **Material-UI**: For modern, responsive UI components.
+- **Axios**: To fetch data from the financial APIs.
+- **WebSockets**: For real-time data updates in stock prices and metrics.
+- **Vercel**: For deployment and hosting.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## License
 
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
