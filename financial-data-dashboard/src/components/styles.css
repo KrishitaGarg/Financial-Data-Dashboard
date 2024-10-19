@@ -1,6 +1,6 @@
 body.light-mode {
-    --bg-color: #f4f4f4;
-    --text-color: #333;
+    --bg-color: #ebe0e0;
+    --text-color: #000;
     --card-bg-color: #ffffff;
     --card-border-color: #ddd;
     --header-border-color: #eee;
@@ -19,7 +19,7 @@ body.light-mode {
 
 body.dark-mode {
     --bg-color: #1e1e1e;
-    --text-color: #ccc;
+    --text-color: #fff;
     --card-bg-color: #333;
     --card-border-color: #444;
     --header-border-color: #555;
@@ -161,16 +161,6 @@ p {
     text-align: center;
     margin-bottom: 10px;
     color: var(--text-color);
-}
-
-body.light-mode {
-  background-color: #f0f0f0;
-  color: #000;
-}
-
-body.dark-mode {
-  background-color: #303030;
-  color: #fff;
 }
 
 .dark-mode input,

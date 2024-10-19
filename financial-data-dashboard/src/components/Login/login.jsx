@@ -12,6 +12,8 @@ import {
 } from "../../auth";
 import "./login.css";
 import bg from "../../assets/complete-reg.png";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 const fadeIn = keyframes`
   0% {
@@ -253,6 +255,11 @@ const SignInSignUp = ({ onLogin }) => {
   const [username, setUsername] = useState("");
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -383,6 +390,7 @@ const SignInSignUp = ({ onLogin }) => {
                 alignItems: "center",
                 justifyContent: "center",
                 border: "2px solid white",
+                cursor: "pointer",
               }}
             >
               <img
@@ -399,6 +407,7 @@ const SignInSignUp = ({ onLogin }) => {
                 fontSize: "14px",
                 backgroundColor: "green",
                 color: "white",
+                cursor: "pointer",
               }}
             >
               Sign Up
@@ -423,13 +432,27 @@ const SignInSignUp = ({ onLogin }) => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
-            <Input
-              type="password"
-              placeholder="Password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <div style={{ position: "relative", width: "100%" }}>
+              <Input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <span
+                onClick={togglePasswordVisibility}
+                style={{
+                  position: "absolute",
+                  right: "10px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  cursor: "pointer",
+                }}
+              >
+                <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+              </span>
+            </div>
             <Button
               type="submit"
               style={{
@@ -437,6 +460,7 @@ const SignInSignUp = ({ onLogin }) => {
                 fontSize: "14px",
                 backgroundColor: "green",
                 color: "white",
+                cursor: "pointer",
               }}
             >
               Sign In
@@ -454,6 +478,7 @@ const SignInSignUp = ({ onLogin }) => {
                 alignItems: "center",
                 justifyContent: "center",
                 border: "2px solid white",
+                cursor: "pointer",
               }}
             >
               <img
@@ -482,6 +507,7 @@ const SignInSignUp = ({ onLogin }) => {
                 height: "8%",
                 marginTop: "70%",
                 fontSize: "13px",
+                cursor: "pointer",
               }}
             >
               {signIn

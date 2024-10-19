@@ -8,6 +8,7 @@ import {
 import { Chart, registerables } from "chart.js/auto";
 import "chartjs-adapter-date-fns";
 import {
+  Menu,
   MenuItem,
   Select,
   InputLabel,
@@ -29,9 +30,8 @@ import {
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import "./styles.css";
-import MenuIcon from "../assets/menu.png";
 import LiveStockTicker from "./LiveStockTicker";
-
+import AccountCircle from "@mui/icons-material/AccountCircle";
 Chart.register(...registerables);
 
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -47,7 +47,7 @@ const toTitleCaseWithSpaces = (str) => {
     .join(" ");
 };
 
-const Dashboard = ({ onLogout }) => {
+const Dashboard = ({ userInfo, onLogout }) => {
   const [stockSymbols, setStockSymbols] = useState([]);
   const [filteredStockSymbols, setFilteredStockSymbols] = useState([]);
   const [selectedSymbol, setSelectedSymbol] = useState("");
@@ -67,9 +67,19 @@ const Dashboard = ({ onLogout }) => {
   const [searchTimeout, setSearchTimeout] = useState(null);
   const canvasRef = useRef(null);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+
 
   const handleThemeToggle = () => {
     setIsDarkMode((prevMode) => !prevMode);
+  };
+
+  const handleUserMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleUserMenuClose = () => {
+    setAnchorEl(null);
   };
 
   const lightTheme = createTheme({
@@ -89,6 +99,14 @@ const Dashboard = ({ onLogout }) => {
       },
     },
   });
+
+  useEffect(() => {
+    const storedUserInfo = localStorage.getItem("userInfo");
+    const loggedInStatus = localStorage.getItem("isLoggedIn");
+
+    if (storedUserInfo && loggedInStatus === "true") {
+    }
+  }, []);
 
   useEffect(() => {
     if (isDarkMode) {
@@ -173,6 +191,7 @@ const Dashboard = ({ onLogout }) => {
   useEffect(() => {
     const getHistoricalPrices = async () => {
       if (selectedSymbol) {
+        setLoadingData(true);
         try {
           const prices = await fetchHistoricalPrices(selectedSymbol);
           setHistoricalPrices(prices);
@@ -181,6 +200,8 @@ const Dashboard = ({ onLogout }) => {
           console.error("Error fetching historical prices:", error);
           setError("Error fetching historical prices data. Please try again.");
           setHistoricalPrices([]);
+        } finally {
+          setLoadingData(false);
         }
       }
     };
@@ -343,27 +364,63 @@ const Dashboard = ({ onLogout }) => {
               Stock Dashboard
             </Typography>
             <Box display="flex" alignItems="center">
-              <Typography
-                variant="body1"
-                sx={{ marginRight: "10px", color: "#fff" }}
-              >
+              <Typography variant="body1" sx={{ color: "#fff" }}>
                 {isDarkMode ? "🌛" : "🌞"}
               </Typography>
-              <Switch checked={isDarkMode} onChange={handleThemeToggle} />
-              <Button
-                color="inherit"
-                onClick={onLogout}
-                sx={{
-                  backgroundColor: isDarkMode ? "#333" : "#fff",
-                  color: isDarkMode ? "#fff" : "#1976d2",
-                  borderRadius: "8px",
-                  padding: "5px 15px",
-                  marginLeft: "20px",
-                  textTransform: "capitalize",
+              <Switch
+                checked={isDarkMode}
+                onChange={handleThemeToggle}
+                sx={{ marginRight: "15px" }}
+              />
+              <IconButton onClick={handleUserMenuOpen} sx={{ color: "#fff" }}>
+                <AccountCircle />
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleUserMenuClose}
+                PaperProps={{
+                  sx: {
+                    backgroundColor: isDarkMode ? "#424242" : "#f49595",
+                    color: isDarkMode ? "#ffffff" : "#000000",
+                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
+                  },
                 }}
               >
-                Logout
-              </Button>
+                <MenuItem
+                  sx={{
+                    backgroundColor: isDarkMode ? "#424242" : "#f49595",
+                    border: "1px solid black",
+                  }}
+                  onClick={() => {
+                    handleUserMenuClose();
+                  }}
+                >
+                  <Typography variant="body1" sx={{ marginRight: "10px" }}>
+                    Hi,{" "}
+                    {userInfo
+                      ? userInfo.displayName || userInfo.email
+                      : "Guest"}
+                  </Typography>
+                </MenuItem>
+                <MenuItem
+                  sx={{
+                    backgroundColor: "red",
+                    color: "white",
+                    border: "1px solid black",
+                    "&:hover": {
+                      backgroundColor: "#ff4d4d",
+                    },
+                  }}
+                  onClick={() => {
+                    handleUserMenuClose();
+                    onLogout();
+                    alert("Thanks for visiting! Come back soon 😊");
+                  }}
+                >
+                  Logout
+                </MenuItem>
+              </Menu>
             </Box>
           </Toolbar>
         </AppBar>
@@ -411,6 +468,7 @@ const Dashboard = ({ onLogout }) => {
                 setSelectedDetail("kpi");
               }}
               variant="outlined"
+              disabled={searchTerm.length === 0}
               sx={{
                 backgroundColor: isDarkMode ? "#333" : "#fff",
                 color: isDarkMode ? "#fff" : "#000",
@@ -543,12 +601,9 @@ const Dashboard = ({ onLogout }) => {
               Graphical Analysis
             </Typography>
             {loadingData ? (
-              <CircularProgress />
+              <CircularProgress color="inherit" />
             ) : (
-              <canvas
-                ref={canvasRef}
-                style={{ borderRadius: "10px" }}
-              />
+              <canvas ref={canvasRef} style={{ borderRadius: "10px" }} />
             )}
           </Box>
 
