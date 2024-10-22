@@ -18,6 +18,7 @@ This project is a **Custom Dashboard** designed to display key metrics of the st
 - **Financial Ratios** and **Graphical representation** as key dashboard sections.
 - **Real-time stock data** for symbols, prices, market capitalization, and other financial metrics.
 - **Interactive charts** visualizing key stock information such as opening/closing prices.
+- **Stock news section** providing the latest news articles related to the selected stock symbol.
 - **User-friendly interface** with support for both **dark** and **light** modes.
 - **Responsive design**, optimized for desktop and mobile.
 
@@ -50,13 +51,14 @@ To install and run this project locally, follow these steps:
 2. **Select a stock symbol**: Use the stock symbol search box to find and then select a stock.
 3. **View key metrics**: The dashboard will display real-time data such as stock price, market capitalization, P/E ratio, and dividend yield.
 4. **Interactive charting**: The dashboard provides charts showing stock performance (open, high, low, close prices) over time, with additional support for customized time frames.
+5. **Read the latest news**: Access the news section to view the latest articles related to the selected stock.
 
 ## API Integration
 
 This project uses two key APIs to fetch real-time stock market data:
 
 1. **Financial Modeling Prep API**: Provides data on stock prices, financial ratios, market capitalization, and other key metrics.
-2. **Finnhub API**: Used to retrieve live market data and real-time stock quotes.
+2. **Finnhub API**: Used to retrieve live market data, real-time stock quotes, and stock-related news articles.
 
 ### API Key Configuration
 

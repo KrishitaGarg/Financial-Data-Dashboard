@@ -31,6 +31,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import "./styles.css";
 import LiveStockTicker from "./LiveStockTicker";
+import CompanyNews from "./CompanyNews";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 Chart.register(...registerables);
 
@@ -690,6 +691,33 @@ const Dashboard = ({ userInfo, onLogout }) => {
               theme={isDarkMode ? darkTheme : lightTheme}
             />
           </Box>
+        </Box>
+        {/* Company News Box */}
+        <Box
+          sx={{
+            border: "1px solid #ddd",
+            padding: "20px",
+            backgroundColor: isDarkMode ? "#3f3f44" : "#e0f7fa",
+            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)",
+            borderRadius: "15px",
+            transition: "box-shadow 0.3s ease, transform 0.3s ease",
+            "&:hover": {
+              boxShadow: "0 8px 25px rgba(0, 0, 0, 0.3)",
+            },
+            maxWidth: "800px",
+            margin: "auto",
+          }}
+        >
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: "bold", color: isDarkMode ? "#fff" : "#333" }}
+          >
+            Latest News Related to Stock
+          </Typography>
+          <CompanyNews
+            selectedSymbol={selectedSymbol}
+            isDarkMode={isDarkMode}
+          />
         </Box>
       </Container>
     </ThemeProvider>
