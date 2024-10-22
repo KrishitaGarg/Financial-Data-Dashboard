@@ -242,20 +242,6 @@ const Dashboard = ({ userInfo, onLogout }) => {
           labels,
           datasets: [
             {
-              label: `${selectedSymbol} Opening Price`,
-              data: openingPrices,
-              borderColor: isDarkMode
-                ? "rgba(75, 192, 192, 0.8)"
-                : "rgba(75, 192, 192, 1)",
-              backgroundColor: isDarkMode
-                ? "rgba(75, 192, 192, 0.1)"
-                : "rgba(75, 192, 192, 0.2)",
-              pointRadius: 3,
-              fill: false,
-              tension: 0.3,
-              color: isDarkMode ? "#fff" : "#000",
-            },
-            {
               label: `${selectedSymbol} Closing Price`,
               data: closingPrices,
               borderColor: isDarkMode
