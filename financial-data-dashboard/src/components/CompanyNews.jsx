@@ -27,7 +27,7 @@ const CompanyNews = ({ selectedSymbol }) => {
       try {
         const toDate = new Date();
         const fromDate = new Date();
-        fromDate.setDate(toDate.getDate() - 7);
+        fromDate.setDate(toDate.getDate() - 3);
 
         const formattedToDate = toDate.toISOString().split("T")[0];
         const formattedFromDate = fromDate.toISOString().split("T")[0];
