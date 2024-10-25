@@ -18,7 +18,7 @@ This project is a **Custom Dashboard** designed to display key metrics of the st
 - **Financial Ratios** and **Graphical representation** as key dashboard sections.
 - **Real-time stock data** for symbols, prices, market capitalization, and other financial metrics.
 - **Interactive charts** visualizing key stock information such as opening/closing prices.
-- **Stock news section** providing the latest news articles related to the selected stock symbol.
+- **Stock news section** providing the latest news articles (from the past three days) related to the selected stock symbol.
 - **User-friendly interface** with support for both **dark** and **light** modes.
 - **Responsive design**, optimized for desktop and mobile.
 
@@ -28,11 +28,11 @@ To install and run this project locally, follow these steps:
 
 1. **Clone the repository** :
    ```bash
-   git clone https://github.com/yourusername/stock-market-kpi-dashboard.git
+   git clone https://github.com/KrishitaGarg/Financial-Data-Dashboard.git
    ```
 2. **Navigate to the project directory** :
    ```bash
-   cd stock-market-kpi-dashboard
+   cd financial-data-dashboard
    ```
 3. **Install dependencies** :
    ```bash
