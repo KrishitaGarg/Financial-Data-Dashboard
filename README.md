@@ -1,6 +1,6 @@
 # Stock Market KPI Dashboard
 
-This project is a **Custom Dashboard** designed to display key metrics of the stock market with **real-time data** using financial APIs and includes various **data visualizations** for stock prices. The dashboard is built using **React**, with **Chart.js**, **Financial Modeling Prep's API**, and **Finnhub API** to provide accurate financial data and user insights.
+This project is a **Custom Dashboard** designed to display key metrics of the stock market with **real-time data** using financial APIs and includes various **data visualizations** for stock prices. The dashboard is built using **React**, with **Chart.js**, **Financial Modeling Prep's API**, and **Finnhub API** to provide accurate financial data and user insights. Due to constraints of free API data, metrics for selected stocks like AAPL, MSFT, TSLA, and GOOGL are available; try accessing them for a demonstration.
 
 ## Table of Contents
 
